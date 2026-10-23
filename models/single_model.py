@@ -606,6 +606,7 @@ class SingleModel(BaseModel):
             mirror12 = 0
             if epoch >= self.epoch3:
                 w1 = 1
+                mirror12 = torch.mean((self.x5_210 - self.x5_21)**2)
 
                 mirror1 = w1 * (torch.mean(torch.abs(self.fake_B1 - self.fake_B0)) + 1 - self.ssim((self.fake_B1+1)/2., (self.fake_B0+1)/2.))
                 mirror1 += w1 * (
@@ -616,7 +617,7 @@ class SingleModel(BaseModel):
             else:
                 w1 = 1
 
-                mirror12 = torch.mean((self.x5_22 - self.x5_21) ** 2) + torch.mean((self.x5_220 - self.x5_210) ** 2)
+                # mirror12 = torch.mean((self.x5_22 - self.x5_21) ** 2) + torch.mean((self.x5_220 - self.x5_210) ** 2)
 
                 mirror_reg = 3 * w1 * (self.colorloss.colorloss3(self.fake_B1, self.A_img, self.A_img, w0))
 
@@ -625,6 +626,7 @@ class SingleModel(BaseModel):
                 if epoch >= self.epoch2:
                     w2 = 2
                     w = 1 / 2
+                    mirror12 += torch.mean((self.x5_220 - self.x5_22)**2)
 
                     mirror1 += w2 * (torch.mean(torch.abs(self.fake_B2 - self.fake_B0)) + 1 - self.ssim((self.fake_B2+1)/2., (self.fake_B0+1)/2.))
                     mirror1 += w2 * (torch.mean(torch.abs(self.fake_B20 - self.fake_B0)) + 1 - self.ssim(
@@ -633,7 +635,7 @@ class SingleModel(BaseModel):
                     mirror_reg += 3 * w2 * (self.colorloss.colorloss3(self.fake_B2, self.A_img, self.fake_B0, w0))
                 else:
                     w2 = 1
-                    mirror12 += torch.mean((self.x5_23 - self.x5_22) ** 2) + torch.mean((self.x5_230 - self.x5_220) ** 2)
+                    # mirror12 += torch.mean((self.x5_23 - self.x5_22) ** 2) + torch.mean((self.x5_230 - self.x5_220) ** 2)
 
                     mirror_reg += 3 * w2 * (self.colorloss.colorloss3(self.fake_B2, self.A_img, self.A_img, w0))
 
@@ -641,6 +643,7 @@ class SingleModel(BaseModel):
                 if epoch >= self.epoch1:
                     w3 = 3
                     w = 1 / 3
+                    mirror12 += torch.mean((self.x5_230 - self.x5_23)**2)
                     mirror1 += w3 * (torch.mean(torch.abs(self.fake_B3 - self.fake_B0)) + 1 - self.ssim((self.fake_B3+1)/2., (self.fake_B0+1)/2.))
                     mirror1 += w3 * (torch.mean(torch.abs(self.fake_B30 - self.fake_B0)) + 1 - self.ssim(
                         (self.fake_B30 + 1) / 2., (self.fake_B0 + 1) / 2.))
@@ -648,13 +651,14 @@ class SingleModel(BaseModel):
                     mirror_reg += 3 * w3 * (self.colorloss.colorloss3(self.fake_B3, self.A_img, self.fake_B0, w0))
                 else:
                     w3 = 1
-                    mirror12 += torch.mean((self.x5_24 - self.x5_23) ** 2) + torch.mean((self.x5_240 - self.x5_230) ** 2)
+                    # mirror12 += torch.mean((self.x5_24 - self.x5_23) ** 2) + torch.mean((self.x5_240 - self.x5_230) ** 2)
 
                     mirror_reg += 3 * w3 * (self.colorloss.colorloss3(self.fake_B3, self.A_img, self.A_img, w0))
 
             if epoch < self.epoch1:
                 w4 = 4
                 w = 1 / 4
+                mirror12 += torch.mean((self.x5_240 - self.x5_24)**2)
                 mirror1 +=  w4 * (torch.mean(torch.abs(self.fake_B4 - self.fake_B0)) + 1 - self.ssim((self.fake_B4+1)/2., (self.fake_B0+1)/2.))
                 mirror1 +=  w4 * (
                             torch.mean(torch.abs(self.fake_B40 - self.fake_B0)) + 1 - self.ssim((self.fake_B40 + 1) / 2.,
